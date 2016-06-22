@@ -92,46 +92,46 @@ static void stats(struct arc *s)
 	struct object *obj;
 
 	list_for_each_entry(arc_obj, &s->mrug.head, head) {
-		WARN_ON(arc_obj->state == &s->mrug);
+		//WARN_ON(arc_obj->state != &s->mrug);
 		obj = container_of(arc_obj, struct object, entry);
 
-		printk(KERN_ERR"[%02x]", obj->sha1[0]);
+		printk("[%02x]", obj->sha1[0]);
 	}
 
-	printk(KERN_ERR" + ");
+	printk(" + ");
 
 	list_for_each_entry(arc_obj, &s->mru.head, head) {
-		WARN_ON(arc_obj->state == &s->mrug);
+		//WARN_ON(arc_obj->state != &s->mru);
 		obj = container_of(arc_obj, struct object, entry);
 
-		printk(KERN_ERR"[%02x]", obj->sha1[0]);
+		printk("[%02x]", obj->sha1[0]);
 
 		if (i++ == s->p)
-			printk(KERN_ERR" # ");
+			printk(" # ");
 	}
 
-	printk(KERN_ERR" + ");
+	printk(" + ");
 
 	list_for_each_entry(arc_obj, &s->mfu.head, head) {
-		WARN_ON(arc_obj->state == &s->mrug);
+		//WARN_ON(arc_obj->state != &s->mfu);
 		obj = container_of(arc_obj, struct object, entry);
 
-		printk(KERN_ERR"[%02x]", obj->sha1[0]);
+		printk("[%02x]", obj->sha1[0]);
 
 		if (i++ == s->p)
-			printk(KERN_ERR" # ");
+			printk(" # ");
 	}
 	if (i == s->p)
-		printk(KERN_ERR" # ");
-	printk(KERN_ERR" + ");
+		printk(" # ");
+	printk(" + ");
 
 	list_for_each_entry(arc_obj, &s->mfug.head, head) {
-		WARN_ON(arc_obj->state == &s->mrug);
+		//WARN_ON(arc_obj->state != &s->mfug);
 		obj = container_of(arc_obj, struct object, entry);
 
-		printk(KERN_ERR"[%02x]", obj->sha1[0]);
+		printk("[%02x]", obj->sha1[0]);
 	}
-	printk(KERN_ERR"\n");
+	printk("\n");
 }
 
 #define MAXOBJ 16
@@ -150,28 +150,37 @@ static int __init arc_init(void)
 		sha1[i][0] = i;
 	}
 
+	printk(KERN_ERR"####stage1");
 	for (i = 0; i < 4 * MAXOBJ; ++i) {
-		unsigned char *cur = sha1[prandom_u32() & (MAXOBJ - 1)];
+		//unsigned char *cur = sha1[prandom_u32() & (MAXOBJ - 1)];
+		unsigned char *cur = sha1[i & (MAXOBJ - 1)];
 
-		printk(KERN_ERR"get %02x: ", cur[0]);
-		WARN_ON(arc_lookup(s, cur));
+		printk("get %02x: ", cur[0]);
+		////WARN_ON(!arc_lookup(s, cur));
+		arc_lookup(s, cur);
 
 		stats(s);
 	}
+	printk(KERN_ERR"####stage2");
 
 	for (i = 0; i < MAXOBJ; ++i) {
-		unsigned char *cur = sha1[prandom_u32() & (MAXOBJ / 4 - 1)];
+		//unsigned char *cur = sha1[prandom_u32() & (MAXOBJ / 4 - 1)];
+		unsigned char *cur = sha1[i & (MAXOBJ / 4 - 1)];
 
-		printk(KERN_ERR"get %02x: ", cur[0]);
-		WARN_ON(arc_lookup(s, cur));
+		printk("get %02x: ", cur[0]);
+		////WARN_ON(!arc_lookup(s, cur));
+		arc_lookup(s, cur);
 		stats(s);
 	}
+	printk(KERN_ERR"####stage3");
 
 	for (i = 0; i < 4 * MAXOBJ; ++i) {
-		unsigned char *cur = sha1[prandom_u32() & (MAXOBJ - 1)];
+		//unsigned char *cur = sha1[prandom_u32() & (MAXOBJ - 1)];
+		unsigned char *cur = sha1[i & (MAXOBJ - 1)];
 
-		printk(KERN_ERR"get %02x: ", cur[0]);
-		WARN_ON(arc_lookup(s, cur));
+		printk("get %02x: ", cur[0]);
+		////WARN_ON(!arc_lookup(s, cur));
+		arc_lookup(s, cur);
 		stats(s);
 	}
 
